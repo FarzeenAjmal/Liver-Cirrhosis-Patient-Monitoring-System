@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis History - HepatoCare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .custom-file-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-wave-square"></i>
+                </div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li>
+                    <a href="dashboard.html" class="nav-item">
+                        <i class="fa-solid fa-chart-line"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="patients.html" class="nav-item">
+                        <i class="fa-solid fa-users"></i> Patient Records
+                    </a>
+                </li>
+                <li><a href="add_patient.html" class="nav-item"><i class="fa-solid fa-user-plus"></i> Add Patient</a></li>
+                <li>
+                    <a href="upload.html" class="nav-item">
+                        <i class="fa-solid fa-arrow-up-from-bracket"></i> Upload Reports
+                    </a>
+                </li>
+                <li>
+                    <a href="history.html" class="nav-item active">
+                        <i class="fa-regular fa-clock"></i> Analysis History
+                    </a>
+                </li>
+                <li>
+                    <a href="alerts.html" class="nav-item">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Alerts
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html" class="nav-item">
+                        <i class="fa-solid fa-gear"></i> Settings
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-profile">
+                <div class="avatar">D</div>
+                <div class="profile-info">
+                    <div class="profile-name user-name">Dr. Sarah Mitchell</div>
+                    <div class="profile-role user-role">Hepatologist</div>
+                </div>
+            </div>
+            <a href="index.html" class="btn btn-secondary w-full" style="justify-content: flex-start; gap: 0.75rem; margin-top: 1rem;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="breadcrumb">Home > <strong>Patient Analysis History</strong></div>
+            
+            <header class="page-header">
+                <h1 class="page-title">Patient Analysis History</h1>
+            </header>
+
+            <div class="card" style="padding: 0;">
+                <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-color); color: var(--primary); display: flex; align-items: center; gap: 0.5rem; font-weight: 500;">
+                    <i class="fa-regular fa-file-lines"></i> Analysis Records
+                </div>
+                
+                <div style="padding: 0;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="padding-left: 1.5rem;">Patient Name</th>
+                                <th>Date</th>
+                                <th>Report Compared</th>
+                                <th>Risk Level</th>
+                                <th style="padding-right: 1.5rem; width: 80px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable">
+                            <tr><td colspan="5" style="text-align: center; padding: 2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('http://127.0.0.1:5000/history')
+                .then(res => res.json())
+                .then(history => {
+                    const tbody = document.getElementById('historyTable');
+                    tbody.innerHTML = '';
+                    
+                    if (history.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No analysis history found.</td></tr>';
+                        return;
+                    }
+
+                    const styleMap = {
+                        'High': { badgeClass: 'bg-danger-light text-danger' },
+                        'Moderate': { badgeClass: 'bg-warning-light text-warning' },
+                        'Monitoring': { badgeClass: 'bg-warning-light text-warning' },
+                        'Low': { badgeClass: 'bg-success-light text-success' }
+                    };
+
+                    history.forEach(h => {
+                        const rLevel = h.risk_level || 'Moderate';
+                        const badgeClass = styleMap[rLevel] ? styleMap[rLevel].badgeClass : 'bg-warning-light text-warning';
+                        
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="padding-left: 1.5rem; font-weight: 500;">${h.patient_name}</td>
+                            <td>${h.date}</td>
+                            <td><div class="custom-file-row"><i class="fa-regular fa-file-pdf"></i> ${h.report_compared}</div></td>
+                            <td><span class="badge ${badgeClass}">${h.risk_level}</span></td>
+                            <td style="padding-right: 1.5rem;"><button class="btn btn-primary" style="padding: 0.5rem 1rem; border-radius: 99px;" onclick="alert('Summary: ${h.summary}')">View</button></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(e => {
+                    console.error("Error fetching history:", e);
+                    document.getElementById('historyTable').innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load data.</td></tr>';
+                });
+        });
+    </script>
+</body>
+</html>

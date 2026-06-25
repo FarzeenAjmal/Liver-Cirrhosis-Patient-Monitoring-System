@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - HepatoCare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-wave-square"></i>
+                </div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+                <li><a href="patients.html" class="nav-item"><i class="fa-solid fa-users"></i> Patient Records</a></li>
+                <li><a href="add_patient.html" class="nav-item"><i class="fa-solid fa-user-plus"></i> Add Patient</a></li>
+                <li><a href="upload.html" class="nav-item"><i class="fa-solid fa-arrow-up-from-bracket"></i> Upload Reports</a></li>
+                <li><a href="history.html" class="nav-item"><i class="fa-regular fa-clock"></i> Analysis History</a></li>
+                <li><a href="alerts.html" class="nav-item"><i class="fa-solid fa-triangle-exclamation"></i> Alerts</a></li>
+                <li><a href="settings.html" class="nav-item active"><i class="fa-solid fa-gear"></i> Settings</a></li>
+            </ul>
+
+            <div class="sidebar-profile">
+                <div class="avatar">D</div>
+                <div class="profile-info">
+                    <div class="profile-name user-name">Dr. Sarah Mitchell</div>
+                    <div class="profile-role user-role">Hepatologist</div>
+                </div>
+            </div>
+            <a href="index.html" class="btn btn-secondary w-full" style="justify-content: flex-start; gap: 0.75rem; margin-top: 1rem;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="breadcrumb">Home > <strong>Settings</strong></div>
+            
+            <header class="page-header">
+                <h1 class="page-title">Provider Profile & Settings</h1>
+                <p class="page-subtitle">Manage your account preferences and settings</p>
+            </header>
+
+            <div class="card" style="max-width: 600px;">
+                <h3 class="mb-4">Profile Details</h3>
+                <form id="settingsForm" class="flex-col gap-4">
+                    <div class="input-frame">
+                        <label for="providerName">Full Name</label>
+                        <input type="text" id="providerName" value="Dr. Sarah Mitchell">
+                    </div>
+                    <div class="input-frame">
+                        <label for="providerRole">Specialization / Role</label>
+                        <input type="text" id="providerRole" value="Hepatologist">
+                    </div>
+                    <div class="input-frame">
+                        <label for="providerEmail">Contact Email</label>
+                        <input type="email" id="providerEmail" value="s.mitchell@hospital.org">
+                    </div>
+                    
+                    <div style="margin-top: 1rem;">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('http://127.0.0.1:5000/profile')
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.name) {
+                        document.getElementById('providerName').value = data.name;
+                        document.getElementById('providerRole').value = data.role;
+                        document.getElementById('providerEmail').value = data.email;
+                    }
+                })
+                .catch(err => console.error(err));
+        });
+
+        document.getElementById('settingsForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = 'Saving...';
+            
+            const payload = {
+                full_name: document.getElementById('providerName').value,
+                specialization: document.getElementById('providerRole').value,
+                email: document.getElementById('providerEmail').value
+            };
+
+            fetch('http://127.0.0.1:5000/update_profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.innerText = 'Saved Successfully';
+                btn.style.backgroundColor = 'var(--success)';
+                
+                document.querySelectorAll('.profile-name, .user-name').forEach(el => el.innerText = data.name);
+                document.querySelectorAll('.profile-role, .user-role').forEach(el => el.innerText = data.role);
+                
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = 'var(--primary)';
+                }, 2000);
+            })
+            .catch(err => {
+                console.error(err);
+                btn.innerText = 'Error Saving';
+                setTimeout(() => { btn.innerText = originalText; }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

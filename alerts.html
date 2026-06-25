@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerts - HepatoCare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .alert-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-left: 4px solid var(--border-color);
+            margin-bottom: 1rem;
+            background: var(--card-bg);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+        .alert-card.critical {
+            border-left-color: var(--danger);
+            background-color: var(--danger-light);
+        }
+        .alert-card.warning {
+            border-left-color: var(--warning);
+            background-color: var(--warning-light);
+        }
+        .alert-card.resolved {
+            border-left-color: var(--success);
+            background-color: var(--success-light);
+            opacity: 0.8;
+        }
+        .alert-info { flex: 1; }
+        .alert-title { font-weight: 600; margin-bottom: 0.5rem; font-size: 1rem; color: var(--text-dark); display: flex; align-items: center; }
+        .alert-meta { font-size: 0.875rem; color: var(--text-muted); display: flex; gap: 1.5rem; }
+        .alert-message { margin-top: 0.75rem; font-size: 0.95rem; color: var(--text-dark); line-height: 1.4; }
+        .alert-actions { margin-left: 1.5rem; }
+        .alert-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-right: 0.75rem;
+        }
+        .alert-badge.critical { background: var(--danger); color: white; }
+        .alert-badge.warning { background: var(--warning); color: white; }
+        .alert-badge.resolved { background: var(--success); color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-wave-square"></i>
+                </div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+                <li><a href="patients.html" class="nav-item"><i class="fa-solid fa-users"></i> Patient Records</a></li>
+                <li><a href="add_patient.html" class="nav-item"><i class="fa-solid fa-user-plus"></i> Add Patient</a></li>
+                <li><a href="upload.html" class="nav-item"><i class="fa-solid fa-arrow-up-from-bracket"></i> Upload Reports</a></li>
+                <li><a href="history.html" class="nav-item"><i class="fa-regular fa-clock"></i> Analysis History</a></li>
+                <li><a href="alerts.html" class="nav-item active"><i class="fa-solid fa-triangle-exclamation"></i> Alerts</a></li>
+                <li><a href="settings.html" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a></li>
+            </ul>
+
+            <div class="sidebar-profile">
+                <div class="avatar">D</div>
+                <div class="profile-info">
+                    <div class="profile-name user-name">Dr. Sarah Mitchell</div>
+                    <div class="profile-role user-role">Hepatologist</div>
+                </div>
+            </div>
+            <a href="index.html" class="btn btn-secondary w-full" style="justify-content: flex-start; gap: 0.75rem; margin-top: 1rem;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="breadcrumb">Home > <strong>Alerts</strong></div>
+            
+            <header class="page-header flex justify-between items-center">
+                <div>
+                    <h1 class="page-title">System Alerts</h1>
+                    <p class="page-subtitle">Manage patient notifications and critical events</p>
+                </div>
+            </header>
+
+            <div class="card" style="padding: 2rem;">
+                <div class="tabs-container mb-4" id="alert-tabs" style="margin-bottom: 2rem;">
+                    <button class="tab-btn active" data-filter="active">Active</button>
+                    <button class="tab-btn" data-filter="resolved">Resolved</button>
+                    <button class="tab-btn" data-filter="all">All Alerts</button>
+                </div>
+
+                <div id="alerts-container">
+                    <!-- Alerts rendered dynamically -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('alerts-container');
+            let currentFilter = 'active';
+            let allAlerts = [];
+
+            const loadAlerts = () => {
+                fetch('http://127.0.0.1:5000/alerts')
+                    .then(res => res.json())
+                    .then(data => {
+                        allAlerts = data || [];
+                        renderAlerts();
+                    })
+                    .catch(err => console.error("Error fetching alerts:", err));
+            };
+
+            const renderAlerts = () => {
+                container.innerHTML = '';
+                
+                const filtered = allAlerts.filter(a => {
+                    if (currentFilter === 'all') return true;
+                    return a.status === currentFilter;
+                });
+
+                if (filtered.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; padding: 4rem 0;"><i class="fa-solid fa-check-circle" style="font-size: 3rem; color: var(--success); margin-bottom: 1rem; opacity: 0.5;"></i><p class="text-muted">No alerts found for this filter.</p></div>';
+                    return;
+                }
+
+                filtered.forEach(alert => {
+                    const isResolved = alert.status === 'resolved';
+                    
+                    const card = document.createElement('div');
+                    card.className = `alert-card ${isResolved ? 'resolved' : alert.severity}`;
+                    
+                    card.innerHTML = `
+                        <div class="alert-info">
+                            <div class="alert-title">
+                                <span class="alert-badge ${isResolved ? 'resolved' : alert.severity}">${isResolved ? 'Resolved' : alert.severity}</span>
+                                ${alert.patientName || `Patient (${alert.patient_id})`}
+                            </div>
+                            <div class="alert-meta">
+                                <span><i class="fa-regular fa-clock"></i> ${alert.timestamp}</span>
+                            </div>
+                            <div class="alert-message">${alert.message}</div>
+                        </div>
+                        <div class="alert-actions">
+                            <button class="btn ${isResolved ? 'btn-secondary' : 'btn-primary'}" onclick="toggleAlertStatus(${alert.id}, '${alert.status}')" id="btn-alert-${alert.id}">
+                                ${isResolved ? 'Unresolve' : 'Resolve'}
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            };
+
+            window.toggleAlertStatus = (id, currentStatus) => {
+                const btn = document.getElementById(`btn-alert-${id}`);
+                const originalText = btn.innerText;
+                btn.innerText = 'Updating...';
+                
+                const endpoint = currentStatus === 'active' ? '/resolve_alert' : '/unresolve_alert';
+                
+                fetch(`http://127.0.0.1:5000${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    loadAlerts(); // reload real data
+                })
+                .catch(err => {
+                    console.error("Error toggling alert:", err);
+                    btn.innerText = originalText;
+                });
+            };
+
+            const tabBtns = document.getElementById('alert-tabs').querySelectorAll('.tab-btn');
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    tabBtns.forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentFilter = e.target.getAttribute('data-filter');
+                    renderAlerts();
+                });
+            });
+
+            loadAlerts(); // Initial fetch
+        });
+    </script>
+</body>
+</html>

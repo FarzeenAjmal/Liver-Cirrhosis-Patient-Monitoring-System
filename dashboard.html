@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - HepatoCare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .custom-stat-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .custom-stat-card .stat-title {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        .custom-stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-wave-square"></i>
+                </div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li>
+                    <a href="dashboard.html" class="nav-item active">
+                        <i class="fa-solid fa-chart-line"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="patients.html" class="nav-item">
+                        <i class="fa-solid fa-users"></i> Patient Records
+                    </a>
+                </li>
+                <li>
+                    <a href="add_patient.html" class="nav-item">
+                        <i class="fa-solid fa-user-plus"></i> Add Patient
+                    </a>
+                </li>
+                <li>
+                    <a href="upload.html" class="nav-item">
+                        <i class="fa-solid fa-arrow-up-from-bracket"></i> Upload Reports
+                    </a>
+                </li>
+                <li>
+                    <a href="history.html" class="nav-item">
+                        <i class="fa-regular fa-clock"></i> Analysis History
+                    </a>
+                </li>
+                <li>
+                    <a href="alerts.html" class="nav-item">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Alerts
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html" class="nav-item">
+                        <i class="fa-solid fa-gear"></i> Settings
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-profile">
+                <div class="avatar">D</div>
+                <div class="profile-info">
+                    <div class="profile-name user-name">Dr. Sarah Mitchell</div>
+                    <div class="profile-role user-role">Hepatologist</div>
+                </div>
+            </div>
+            <a href="index.html" class="btn btn-secondary w-full" style="justify-content: flex-start; gap: 0.75rem;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="breadcrumb">Home > <strong>Dashboard</strong></div>
+            
+            <header class="page-header">
+                <h1 class="page-title">Patient Health Overview</h1>
+            </header>
+
+            <div class="card" style="padding: 2rem;">
+                <div class="tabs-container">
+                    <button class="tab-btn active" data-tab="tab-summary">Summary</button>
+                    <button class="tab-btn" data-tab="tab-test-results">Test Results</button>
+                    <button class="tab-btn" data-tab="tab-risk-levels">Risk Levels</button>
+                    <button class="tab-btn" data-tab="tab-treatment">Treatment Plan</button>
+                </div>
+
+                <!-- Tab Content: Summary -->
+                <div id="tab-summary" class="tab-content tab-content-active">
+                    <!-- Dashboard Stats -->
+                    <div class="stats-grid">
+                        <div class="card custom-stat-card">
+                            <div class="stat-title">Total Patients</div>
+                            <div class="stat-value" id="stat-total">6</div>
+                            <div class="stat-desc text-success"><i class="fa-solid fa-arrow-trend-up"></i> +2 this week</div>
+                        </div>
+                        
+                        <div class="card custom-stat-card">
+                            <div class="stat-title">Critical Cases</div>
+                            <div class="stat-value text-danger" id="stat-risk">2</div>
+                            <div class="stat-desc text-muted">Require immediate attention</div>
+                        </div>
+
+                        <div class="card custom-stat-card">
+                            <div class="stat-title">Monitoring</div>
+                            <div class="stat-value text-warning" id="stat-review">2</div>
+                            <div class="stat-desc text-muted">Regular check-ups needed</div>
+                        </div>
+
+                        <div class="card custom-stat-card">
+                            <div class="stat-title">Stable</div>
+                            <div class="stat-value text-success" id="stat-improving">2</div>
+                            <div class="stat-desc text-muted">Good health condition</div>
+                        </div>
+                    </div>
+
+                    <div class="charts-grid">
+                        <div class="card max-h-chart">
+                            <h3 class="mb-4" style="font-size: 1rem; color: var(--text-dark); margin-bottom: 1.5rem; font-weight: 500;">Risk Level Distribution</h3>
+                            <div style="position: relative; height: 300px; max-height: 300px; width: 100%; overflow: hidden;">
+                                <canvas id="riskChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="card max-h-chart">
+                            <h3 class="mb-4" style="font-size: 1rem; color: var(--text-dark); margin-bottom: 1.5rem; font-weight: 500;">Treatment Distribution</h3>
+                            <div style="position: relative; height: 300px; max-height: 300px; width: 100%; overflow: hidden;">
+                                <canvas id="treatmentChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Others -->
+                <div id="tab-test-results" class="tab-content" style="display: none; padding: 2rem 0; color: var(--text-muted);">
+                    Detailed test results will populate here.
+                </div>
+                <div id="tab-risk-levels" class="tab-content" style="display: none; padding: 2rem 0; color: var(--text-muted);">
+                    Advanced risk stratification metrics will populate here.
+                </div>
+                <div id="tab-treatment" class="tab-content" style="display: none; padding: 2rem 0; color: var(--text-muted);">
+                    Comprehensive treatment protocols will populate here.
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('http://127.0.0.1:5000/dashboard/stats')
+                .then(res => res.json())
+                .then(stats => {
+                    if(document.getElementById('stat-total')) document.getElementById('stat-total').textContent = stats.total_patients;
+                    if(document.getElementById('stat-risk')) document.getElementById('stat-risk').textContent = stats.critical_count;
+                    if(document.getElementById('stat-review')) document.getElementById('stat-review').textContent = stats.monitoring_count;
+                    if(document.getElementById('stat-improving')) document.getElementById('stat-improving').textContent = stats.stable_count;
+
+                    const riskData = stats.risk_distribution || [0, 0, 0];
+                    const riskCtx = document.getElementById('riskChart').getContext('2d');
+                    new Chart(riskCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Low', 'Moderate', 'High'],
+                            datasets: [{
+                                data: riskData,
+                                backgroundColor: ['#fadb14', '#fa8c16', '#ff4d4f'],
+                                borderRadius: 6,
+                                barPercentage: 0.6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { borderDash: [4, 4] } },
+                                x: { grid: { display: false } }
+                            }
+                        }
+                    });
+
+                    const treatmentData = stats.treatment_distribution || [0, 0, 0, 0];
+                    const treatmentCtx = document.getElementById('treatmentChart').getContext('2d');
+                    new Chart(treatmentCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Medication', 'Monitoring', 'Lifestyle', 'Surgery'],
+                            datasets: [{
+                                data: treatmentData,
+                                backgroundColor: '#6c5ce7',
+                                borderRadius: 6,
+                                barPercentage: 0.7
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                x: { beginAtZero: true, grid: { borderDash: [4, 4] } },
+                                y: { grid: { display: false } }
+                            }
+                        }
+                    });
+                })
+                .catch(e => console.error("Error fetching stats:", e));
+        });
+    </script>
+</body>
+</html>

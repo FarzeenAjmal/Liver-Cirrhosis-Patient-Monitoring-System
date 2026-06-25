@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - HepatoCare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="auth-wrapper">
+        <div class="blob"></div>
+        <div class="blob2"></div>
+        
+        <div class="auth-window">
+
+            
+            <div class="auth-content">
+                <div class="auth-header">
+                    <h1 class="auth-title" id="authTitle">Login</h1>
+                    <p class="auth-subtitle" id="authSubtitle">Access your patient monitoring dashboard</p>
+                </div>
+
+                <form id="loginForm" class="auth-form">
+                    <div class="input-frame" id="signupNameFrame" style="display: none;">
+                        <label for="signupName">Full Name</label>
+                        <input type="text" id="signupName" placeholder="Enter your full name">
+                    </div>
+                    <div class="input-frame">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="Enter your email" required>
+                        <span class="validation-msg" id="emailError" style="color: var(--danger); font-size: 0.75rem; margin-top: -0.25rem; display: none;"></span>
+                    </div>
+                    <div class="input-frame">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                        <span class="validation-msg" id="passwordError" style="color: var(--danger); font-size: 0.75rem; margin-top: -0.25rem; display: none;"></span>
+                    </div>
+                    <div id="generalMessage" style="font-size: 0.875rem; text-align: center; display: none; margin-top: 0.5rem; font-weight: 500;"></div>
+                    
+                    <div class="auth-actions">
+                        <button type="submit" id="loginBtn" class="btn btn-primary" disabled>Login</button>
+                        <button type="button" id="toggleAuthBtn" class="btn btn-secondary">Sign Up</button>
+                    </div>
+                </form>
+                
+                <div class="auth-footer">
+                    <a href="#">Forgot Password?</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

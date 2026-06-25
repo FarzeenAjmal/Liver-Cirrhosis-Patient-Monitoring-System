@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Records - HepatoCare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .search-container {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .search-container i {
+            color: var(--text-muted);
+            font-size: 1.25rem;
+        }
+        .search-container input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 0.875rem;
+            color: var(--text-dark);
+        }
+        .search-container input::placeholder {
+            color: #94a3b8;
+        }
+        .custom-stat-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .custom-stat-card .stat-title {
+            color: var(--text-dark);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .custom-stat-card .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-wave-square"></i>
+                </div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li>
+                    <a href="dashboard.html" class="nav-item">
+                        <i class="fa-solid fa-chart-line"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="patients.html" class="nav-item active">
+                        <i class="fa-solid fa-users"></i> Patient Records
+                    </a>
+                </li>
+                <li><a href="add_patient.html" class="nav-item"><i class="fa-solid fa-user-plus"></i> Add Patient</a></li>
+                <li>
+                    <a href="upload.html" class="nav-item">
+                        <i class="fa-solid fa-arrow-up-from-bracket"></i> Upload Reports
+                    </a>
+                </li>
+                <li>
+                    <a href="history.html" class="nav-item">
+                        <i class="fa-regular fa-clock"></i> Analysis History
+                    </a>
+                </li>
+                <li>
+                    <a href="alerts.html" class="nav-item">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Alerts
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html" class="nav-item">
+                        <i class="fa-solid fa-gear"></i> Settings
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-profile">
+                <div class="avatar">D</div>
+                <div class="profile-info">
+                    <div class="profile-name user-name">Dr. Sarah Mitchell</div>
+                    <div class="profile-role user-role">Hepatologist</div>
+                </div>
+            </div>
+            <a href="index.html" class="btn btn-secondary w-full" style="justify-content: flex-start; gap: 0.75rem; margin-top: 1rem;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="breadcrumb">Home > <strong>Patient Records</strong></div>
+            
+            <header class="page-header">
+                <h1 class="page-title">Patient Records</h1>
+                <p class="page-subtitle">Monitor and manage liver cirrhosis patients</p>
+            </header>
+
+            <div class="stats-grid" style="margin-bottom: 2rem;">
+                <div class="card custom-stat-card">
+                    <div class="stat-title">Total Patients</div>
+                    <div class="stat-value" id="p-total">6</div>
+                </div>
+                <div class="card custom-stat-card">
+                    <div class="stat-title">Critical</div>
+                    <div class="stat-value text-danger" id="p-critical">2</div>
+                </div>
+                <div class="card custom-stat-card">
+                    <div class="stat-title">Monitoring</div>
+                    <div class="stat-value text-warning" id="p-monitoring">2</div>
+                </div>
+                <div class="card custom-stat-card">
+                    <div class="stat-title">Stable</div>
+                    <div class="stat-value text-success" id="p-stable">2</div>
+                </div>
+            </div>
+
+            <div class="card" style="padding: 0;">
+                <div class="search-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" placeholder="Search by name or MRN...">
+                    <select id="statusFilter" style="padding: 0.5rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); outline: none; background: var(--bg-color); color: var(--text-dark); margin-left: auto;">
+                        <option value="all">All Statuses</option>
+                        <option value="high">Critical</option>
+                        <option value="moderate">Monitoring</option>
+                        <option value="low">Stable</option>
+                    </select>
+                </div>
+
+                <div style="padding: 0;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="padding-left: 1.5rem;">Patient</th>
+                                <th>MRN</th>
+                                <th>Age</th>
+                                <th>Child-Pugh</th>
+                                <th>Status</th>
+                                <th>Last Visit</th>
+                                <th style="padding-right: 1.5rem;">Vitals</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patientsTable">
+                            <tr><td colspan="7" style="text-align: center; padding: 2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let allPatients = [];
+
+            const styleMap = {
+                'critical': { badgeClass: 'bg-danger-light text-danger', badgeText: 'critical' },
+                'monitoring': { badgeClass: 'bg-warning-light text-warning', badgeText: 'monitoring' },
+                'stable': { badgeClass: 'bg-success-light text-success', badgeText: 'stable' }
+            };
+
+            const renderTable = (patients) => {
+                const tbody = document.getElementById('patientsTable');
+                tbody.innerHTML = '';
+
+                if (patients.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No patients found.</td></tr>';
+                    return;
+                }
+
+                patients.forEach(p => {
+                    const status = p.status || 'stable';
+                    const profile = styleMap[status] || styleMap['stable'];
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="padding-left: 1.5rem;">
+                            <div class="patient-cell">
+                                <div class="avatar">${p.name ? p.name.charAt(0) : 'U'}</div>
+                                <div>
+                                    <div class="patient-name">${p.name}</div>
+                                    <div class="patient-gender">${p.gender || 'Patient'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="font-weight: 500;">${p.mrn}</td>
+                        <td>${p.age || 45}</td>
+                        <td>${p.child_pugh || 'N/A'}</td>
+                        <td><span class="badge ${profile.badgeClass}" style="text-transform: lowercase;">${profile.badgeText}</span></td>
+                        <td>${p.last_visit ? p.last_visit.split(' ')[0] : 'N/A'}</td>
+                        <td style="padding-right: 1.5rem;">
+                            <div class="vitals-text">
+                                BP: ${p.bp}<br>
+                                HR: ${p.hr} bpm<br>
+                                SpO₂: ${p.spo2}%
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn btn-secondary" style="color: var(--danger); padding: 0.25rem 0.5rem;" onclick="confirmDelete('${p.mrn}')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            };
+
+            window.confirmDelete = (mrn) => {
+                if (confirm(`Are you sure you want to delete patient with MRN ${mrn}? This will also delete all associated records.`)) {
+                    fetch(`http://127.0.0.1:5000/patients/${mrn}`, { method: 'DELETE' })
+                        .then(res => res.json())
+                        .then(data => {
+                            alert(data.message || data.error);
+                            location.reload();
+                        });
+                }
+            };
+
+            const filterPatients = () => {
+                const searchText = document.getElementById('searchInput').value.toLowerCase();
+                const statusFilter = document.getElementById('statusFilter').value;
+
+                const filtered = allPatients.filter(p => {
+                    const matchSearch = p.name.toLowerCase().includes(searchText) || p.mrn.toLowerCase().includes(searchText);
+                    const pStatus = p.status || 'stable';
+                    const matchStatus = statusFilter === 'all' || 
+                        (statusFilter === 'high' && pStatus === 'critical') ||
+                        (statusFilter === 'moderate' && pStatus === 'monitoring') ||
+                        (statusFilter === 'low' && pStatus === 'stable');
+                    return matchSearch && matchStatus;
+                });
+                renderTable(filtered);
+            };
+
+            document.getElementById('searchInput').addEventListener('input', filterPatients);
+            document.getElementById('statusFilter').addEventListener('change', filterPatients);
+
+            fetch('http://127.0.0.1:5000/patients')
+                .then(res => res.json())
+                .then(patients => {
+                    allPatients = patients;
+                    
+                    let criticalCount = 0;
+                    let monitoringCount = 0;
+                    let stableCount = 0;
+
+                    patients.forEach(p => {
+                        const status = p.status || 'stable';
+                        if (status === 'critical') criticalCount++;
+                        else if (status === 'monitoring') monitoringCount++;
+                        else stableCount++;
+                    });
+
+                    document.getElementById('p-total').textContent = patients.length;
+                    document.getElementById('p-critical').textContent = criticalCount;
+                    document.getElementById('p-monitoring').textContent = monitoringCount;
+                    document.getElementById('p-stable').textContent = stableCount;
+
+                    renderTable(patients);
+                })
+                .catch(e => {
+                    console.error("Error fetching patients:", e);
+                    document.getElementById('patientsTable').innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load data.</td></tr>';
+                });
+        });
+    </script>
+</body>
+</html>

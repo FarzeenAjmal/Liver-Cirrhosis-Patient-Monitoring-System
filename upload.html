@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Reports - HepatoCare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-wave-square"></i>
+                </div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+                <li><a href="patients.html" class="nav-item"><i class="fa-solid fa-users"></i> Patient Records</a></li>
+                <li><a href="add_patient.html" class="nav-item"><i class="fa-solid fa-user-plus"></i> Add Patient</a></li>
+                <li><a href="upload.html" class="nav-item active"><i class="fa-solid fa-arrow-up-from-bracket"></i> Upload Reports</a></li>
+                <li><a href="history.html" class="nav-item"><i class="fa-regular fa-clock"></i> Analysis History</a></li>
+                <li><a href="alerts.html" class="nav-item"><i class="fa-solid fa-triangle-exclamation"></i> Alerts</a></li>
+                <li><a href="settings.html" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a></li>
+            </ul>
+
+            <div class="sidebar-profile">
+                <div class="avatar">D</div>
+                <div class="profile-info">
+                    <div class="profile-name user-name">Dr. Sarah Mitchell</div>
+                    <div class="profile-role user-role">Hepatologist</div>
+                </div>
+            </div>
+            <a href="index.html" class="btn btn-secondary w-full" style="justify-content: flex-start; gap: 0.75rem; margin-top: 1rem;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">Home > <strong>Upload Reports</strong></div>
+            
+            <header class="page-header">
+                <h1 class="page-title">Upload Patient Reports</h1>
+                <p class="page-subtitle">Upload and analyze patient test reports</p>
+            </header>
+
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1rem; margin-bottom: 0.25rem;">Select Patient</h3>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Choose the patient for report analysis</p>
+                <div class="input-frame">
+                    <select id="patientSelect" style="color: var(--text-dark); background: var(--bg-color);">
+                        <option value="">Choose a patient...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="charts-grid" style="margin-bottom: 1.5rem;">
+                <!-- Current Report Dropzone -->
+                <div class="card p-0">
+                    <div style="padding: 1.5rem;">
+                        <h3 style="font-size: 1rem; color: var(--primary); margin-bottom: 0.25rem;"><i class="fa-solid fa-cloud-arrow-up"></i> Current Test Report</h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Upload the latest patient test report</p>
+                        <div class="dropzone" style="position: relative;">
+                            <input type="file" id="reportCurrent" accept=".pdf,.png,.jpg" style="position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                            <div>
+                                <div class="dz-title" id="lblCurrent">Click to upload or drag and drop</div>
+                                <div class="dz-desc">PDF, PNG, JPG (Max 10MB)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Previous Report Dropzone -->
+                <div class="card p-0">
+                    <div style="padding: 1.5rem;">
+                        <h3 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 0.25rem;"><i class="fa-regular fa-file-lines"></i> Previous Test Report</h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Upload a previous report to compare</p>
+                        <div class="dropzone" style="position: relative;">
+                            <input type="file" id="reportPrev" accept=".pdf,.png,.jpg" style="position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+                            <i class="fa-regular fa-file-lines"></i>
+                            <div>
+                                <div class="dz-title" id="lblPrev">Click to upload previous report</div>
+                                <div class="dz-desc">PDF, PNG, JPG (Max 10MB)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center" style="margin-bottom: 3rem;">
+                <button class="btn btn-primary w-auto inline-flex items-center gap-2" style="border-radius: 99px; padding: 0.75rem 2.5rem; font-size: 1rem; box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);" onclick="analyzeReports()">
+                    Analyze Patient Condition &rarr;
+                </button>
+            </div>
+
+            <!-- Analysis Results Area -->
+            <div id="analysisResults" style="display: none; margin-bottom: 3rem; animation: fadeIn 0.4s ease-out;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="font-size: 1.25rem; color: var(--text-dark); display: flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-chart-area text-primary"></i> Analysis Results - <span id="resPatientName"></span></h2>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Comparison between previous and current reports</span>
+                </div>
+
+                <div class="card" style="border: 1px solid var(--warning); background-color: #fffbeb; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: flex-start;">
+                    <i class="fa-solid fa-circle-exclamation" style="color: #f59e0b; font-size: 1.5rem;"></i>
+                    <div>
+                        <div style="font-weight: 600; color: #b45309; font-size: 1.1rem; margin-bottom: 0.25rem;" id="resSummary">Moderate progression detected</div>
+                        <div style="font-size: 0.85rem; color: #b45309; opacity: 0.8;">Risk Level: <strong id="resRiskLevel">Monitoring</strong></div>
+                    </div>
+                </div>
+
+                <h3 style="font-size: 1rem; color: var(--text-dark); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;"><i class="fa-regular fa-file-lines text-primary"></i> Laboratory Value Changes</h3>
+                
+                <div id="resChangesContainer" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
+                    <!-- Changes populated dynamically via JS -->
+                </div>
+
+                <h3 style="font-size: 1rem; color: var(--success); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;"><i class="fa-regular fa-circle-check"></i> Clinical Recommendations</h3>
+                <div id="resRecContainer" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <!-- Recc populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Vital Signs Section matching UI reference -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <h3 style="font-size: 1rem; color: var(--primary); margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-heart-pulse"></i> Update Vital Signs</h3>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.5rem;">Record current vital signs for the selected patient</p>
+                
+                <form id="vitalsForm" onsubmit="event.preventDefault(); saveVitals();">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="input-frame">
+                            <label>Blood Pressure (mmHg)</label>
+                            <input type="text" id="vitalBp" placeholder="145/95" required>
+                        </div>
+                        <div class="input-frame">
+                            <label>Heart Rate (bpm)</label>
+                            <input type="number" id="vitalHr" placeholder="92" required>
+                        </div>
+                        <div class="input-frame">
+                            <label>Temperature (°C)</label>
+                            <input type="number" step="0.1" id="vitalTemp" placeholder="37.8" required>
+                        </div>
+                        <div class="input-frame">
+                            <label>Oxygen Saturation (%)</label>
+                            <input type="number" id="vitalSpo2" placeholder="94" required>
+                        </div>
+                        <div class="input-frame" style="grid-column: span 1;">
+                            <label>Respiratory Rate (breaths/min)</label>
+                            <input type="number" id="vitalResp" placeholder="20" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full" style="margin-top: 2rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" id="btnSaveVitals">
+                        <i class="fa-regular fa-floppy-disk"></i> Save Vitals
+                    </button>
+                </form>
+            </div>
+            
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load patients into select
+            fetch('http://127.0.0.1:5000/patients')
+                .then(res => res.json())
+                .then(patients => {
+                    const sel = document.getElementById('patientSelect');
+                    patients.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.patient_id;
+                        opt.textContent = `${p.name} (${p.patient_id})`;
+                        sel.appendChild(opt);
+                    });
+                })
+                .catch(e => console.error("Error loading patients:", e));
+
+            // File input binding for UI updates
+            document.getElementById('reportCurrent').addEventListener('change', e => {
+                const el = document.getElementById('lblCurrent');
+                el.innerText = e.target.files[0] ? e.target.files[0].name : "Click to upload or drag and drop";
+            });
+            document.getElementById('reportPrev').addEventListener('change', e => {
+                const el = document.getElementById('lblPrev');
+                el.innerText = e.target.files[0] ? e.target.files[0].name : "Click to upload previous report";
+            });
+        });
+
+        // Backend uploads helper
+        async function uploadFileToBackend(fileInputId) {
+            const fileInput = document.getElementById(fileInputId);
+            if (!fileInput.files.length) return null;
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            try {
+                const res = await fetch('http://127.0.0.1:5000/upload_report', { method: 'POST', body: formData });
+                const data = await res.json();
+                return data.path;
+            } catch (err) {
+                console.error('File upload failed', err);
+                return null;
+            }
+        }
+
+        async function analyzeReports() {
+            const sel = document.getElementById('patientSelect');
+            const patientId = sel.value;
+            if(!patientId) {
+                alert('Please select a patient first.');
+                return;
+            }
+
+            const btn = document.querySelector('button[onclick="analyzeReports()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analyzing...';
+            btn.style.opacity = '0.8';
+            document.getElementById('analysisResults').style.display = 'none';
+            
+            // 1. Upload files first if any
+            const currFile = await uploadFileToBackend('reportCurrent');
+            const prevFile = await uploadFileToBackend('reportPrev');
+            
+            // 2. Run analysis
+            fetch('http://127.0.0.1:5000/analyze_condition', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    patient_id: patientId,
+                    current_report_path: currFile,
+                    previous_report_path: prevFile
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.error) {
+                    alert(data.error);
+                    return;
+                }
+                
+                // Populate UI exactly as requested
+                document.getElementById('resPatientName').textContent = sel.options[sel.selectedIndex].text;
+                document.getElementById('resSummary').textContent = data.summary;
+                document.getElementById('resRiskLevel').textContent = data.risk_level;
+                
+                // Changes Container
+                const changesC = document.getElementById('resChangesContainer');
+                changesC.innerHTML = '';
+                
+                const iconMap = {
+                    'up': '<i class="fa-solid fa-arrow-trend-up" style="color: var(--danger);"></i>',
+                    'down': '<i class="fa-solid fa-arrow-trend-down" style="color: var(--warning);"></i>',
+                    'stable': '<i class="fa-regular fa-circle-check" style="color: var(--success);"></i>'
+                };
+                
+                // Colors for border depending on trend
+                const getBorderColor = (trendIcon) => {
+                    if(trendIcon === 'up') return 'var(--warning)'; // matching reference image styles
+                    if(trendIcon === 'down') return 'var(--warning)';
+                    return 'var(--success)';
+                };
+
+                const getBgColor = (trendIcon) => {
+                    if(trendIcon === 'stable') return '#f0fdf4'; // Light green matching image
+                    return '#fffbeb'; // Light yellow matching image
+                };
+                
+                data.changes.forEach(c => {
+                    const row = document.createElement('div');
+                    row.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border: 1px solid ${getBorderColor(c.icon)}; border-radius: var(--radius-sm); background-color: ${getBgColor(c.icon)};`;
+                    
+                    row.innerHTML = `
+                        <div>
+                            <div style="font-weight: 500; font-size: 0.95rem; color: var(--text-dark); margin-bottom: 0.5rem;">${c.name}</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Previous: ${c.prev} &nbsp;&rarr;&nbsp; Current: ${c.curr}</div>
+                        </div>
+                        <div style="font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; color: ${c.icon === 'stable' ? 'var(--success)' : '#d97706'};">
+                            ${iconMap[c.icon]} ${c.trend}
+                        </div>
+                    `;
+                    changesC.appendChild(row);
+                });
+                
+                // Recommendations Container
+                const recC = document.getElementById('resRecContainer');
+                recC.innerHTML = '';
+                data.recommendations.forEach((r, i) => {
+                    const row = document.createElement('div');
+                    row.style.cssText = `display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem; border: 1px solid var(--border-color); border-radius: 99px; background-color: #fff; font-size: 0.9rem; color: var(--text-dark);`;
+                    row.innerHTML = `<div style="background: #eff6ff; color: var(--primary); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600;">${i+1}</div> <span>${r}</span>`;
+                    recC.appendChild(row);
+                });
+
+                document.getElementById('analysisResults').style.display = 'block';
+                document.getElementById('analysisResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Analysis failed');
+            })
+            .finally(() => {
+                btn.innerHTML = originalText;
+                btn.style.opacity = '1';
+            });
+        }
+
+        function saveVitals() {
+            const sel = document.getElementById('patientSelect');
+            if(!sel.value) {
+                alert('Please select a patient before saving vitals.');
+                return;
+            }
+            
+            const btn = document.getElementById('btnSaveVitals');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+            
+            const payload = {
+                patient_id: sel.value,
+                bp: document.getElementById('vitalBp').value,
+                heart_rate: document.getElementById('vitalHr').value,
+                temperature: document.getElementById('vitalTemp').value,
+                oxygen: document.getElementById('vitalSpo2').value,
+                respiratory_rate: document.getElementById('vitalResp').value
+            };
+            
+            fetch('http://127.0.0.1:5000/save_vitals', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.error) throw new Error(data.error);
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Saved successfully';
+                btn.style.backgroundColor = 'var(--success)';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.backgroundColor = 'var(--primary)';
+                    document.getElementById('vitalsForm').reset();
+                }, 2500);
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Failed to save vitals');
+                btn.innerHTML = originalText;
+            });
+        }
+    </script>
+</body>
+</html>

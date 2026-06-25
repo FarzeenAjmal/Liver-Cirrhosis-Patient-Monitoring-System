@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Patient - HepatoCare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-wave-square"></i>
+                </div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+                <li><a href="patients.html" class="nav-item"><i class="fa-solid fa-users"></i> Patient Records</a></li>
+                <li><a href="add_patient.html" class="nav-item active"><i class="fa-solid fa-user-plus"></i> Add Patient</a></li>
+                <li><a href="upload.html" class="nav-item"><i class="fa-solid fa-arrow-up-from-bracket"></i> Upload Reports</a></li>
+                <li><a href="history.html" class="nav-item"><i class="fa-regular fa-clock"></i> Analysis History</a></li>
+                <li><a href="alerts.html" class="nav-item"><i class="fa-solid fa-triangle-exclamation"></i> Alerts</a></li>
+                <li><a href="settings.html" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a></li>
+            </ul>
+
+            <div class="sidebar-profile">
+                <div class="avatar">D</div>
+                <div class="profile-info">
+                    <div class="profile-name user-name">Loading...</div>
+                    <div class="profile-role user-role">Provider</div>
+                </div>
+            </div>
+            <a href="index.html" class="btn btn-secondary w-full" style="justify-content: flex-start; gap: 0.75rem; margin-top: 1rem;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">Home > <strong>Add Patient</strong></div>
+            
+            <header class="page-header">
+                <h1 class="page-title">Register New Patient</h1>
+                <p class="page-subtitle">Add a new patient to the active monitoring system</p>
+            </header>
+
+            <div class="card" style="max-width: 800px;">
+                <form id="addPatientForm" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    
+                    <div>
+                        <h3 style="font-size: 1rem; color: var(--primary); margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;"><i class="fa-regular fa-id-card"></i> Demographics</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div class="input-frame">
+                                <label>Full Name *</label>
+                                <input type="text" id="pName" placeholder="" required>
+                            </div>
+                            <div class="input-frame">
+                                <label>Patient ID (MRN) *</label>
+                                <input type="text" id="pId" placeholder="" required>
+                            </div>
+                            <div class="input-frame">
+                                <label>Age *</label>
+                                <input type="number" id="pAge" placeholder="" min="1" max="150" required>
+                            </div>
+                            <div class="input-frame">
+                                <label>Gender *</label>
+                                <select id="pGender" style="color: var(--text-dark); background: var(--bg-color);" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1rem;">
+                        <h3 style="font-size: 1rem; color: var(--primary); margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;"><i class="fa-solid fa-heart-pulse"></i> Initial Vital Signs Configuration</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
+                            <div class="input-frame">
+                                <label>Blood Pressure (mmHg) *</label>
+                                <input type="text" id="vBp" placeholder="" pattern="\d{2,3}\/\d{2,3}" title="Format must be systolic/diastolic (e.g. 120/80)" required>
+                            </div>
+                            <div class="input-frame">
+                                <label>Heart Rate (bpm) *</label>
+                                <input type="number" id="vHr" placeholder="" required>
+                            </div>
+                            <div class="input-frame">
+                                <label>Temperature (°C) *</label>
+                                <input type="number" step="0.1" id="vTemp" placeholder="" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="addResult" style="margin-top: 1rem; font-weight: 500;"></div>
+
+                    <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 1rem;">
+                        <button type="reset" class="btn btn-secondary" style="background: var(--bg-color);">Clear Form</button>
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-user-plus"></i> Register Patient</button>
+                    </div>
+                </form>
+            </div>
+            
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        document.getElementById('addPatientForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = this.querySelector('button[type="submit"]');
+            const resDiv = document.getElementById('addResult');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registering...';
+            btn.disabled = true;
+            resDiv.textContent = '';
+            
+            const payload = {
+                name: document.getElementById('pName').value,
+                patient_id: document.getElementById('pId').value,
+                age: document.getElementById('pAge').value,
+                gender: document.getElementById('pGender').value,
+                bp: document.getElementById('vBp').value,
+                heart_rate: document.getElementById('vHr').value,
+                temperature: document.getElementById('vTemp').value
+            };
+
+            fetch('http://127.0.0.1:5000/add_patient', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json().then(data => ({status: res.status, body: data})))
+            .then(obj => {
+                if(obj.status === 201) {
+                    resDiv.style.color = 'var(--success)';
+                    resDiv.innerHTML = '<i class="fa-solid fa-check"></i> ' + obj.body.message;
+                    setTimeout(() => {
+                        window.location.href = 'patients.html';
+                    }, 1500);
+                } else {
+                    resDiv.style.color = 'var(--danger)';
+                    resDiv.textContent = obj.body.error || 'Failed to register patient.';
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            })
+            .catch(err => {
+                resDiv.style.color = 'var(--danger)';
+                resDiv.textContent = 'Network connection error.';
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>
